@@ -11,12 +11,18 @@ the last line of a paragraph and single-word lines are never stretched;
 no trailing spaces; paragraphs separated by one blank line; headings are
 left untouched (never justified).
 
+Blockquote paragraphs (epigraphs, lines starting with "> ") are wrapped
+greedily to the same width with the "> " marker repeated on every line
+(the marker counts toward the width) but are NOT stretched — like
+headings, they are never justified.
+
 A single word longer than WIDTH is left on its own (overlong) line.
 
 Usage: python3 justify.py INPUT [-o OUTPUT] [--width 85]
        (without -o the result goes to stdout)
 """
 import argparse
+import re
 import sys
 
 
@@ -85,6 +91,20 @@ def justify_text(text, width):
         merged = " ".join(l.strip() for l in block.splitlines() if l.strip())
         if merged.startswith("#"):
             out.append(merged)
+        elif merged.startswith(">"):
+            text = re.sub(r"^(>\s*)+", "", merged)
+            words = text.split()
+            lines, cur = [], ""
+            for w in words:
+                cand = (cur + " " + w) if cur else w
+                if cur and len("> " + cand) > width:
+                    lines.append("> " + cur)
+                    cur = w
+                else:
+                    cur = cand
+            if cur:
+                lines.append("> " + cur)
+            out.extend(lines)
         else:
             out.extend(fill_paragraph(merged, width))
         out.append("")

@@ -10,6 +10,8 @@ Checks:
   4. the final line of a paragraph is NOT padded (no double spaces unless
      line is exactly WIDTH — final lines must be <= WIDTH and single-spaced);
   5. headings (# ...) are single lines, not justified (single-spaced);
+  5a. blockquote paragraphs (epigraphs): every line starts with "> ", lines
+      are wrapped to WIDTH but never stretched (no double spaces);
   6. paragraphs are separated by exactly one blank line;
   7. optionally: the number of body paragraphs equals the EN source part
      (--part prologue|0..7 with --sources sources/EN.md, or --en FILE with
@@ -74,6 +76,15 @@ def check(path, width=85, en_count=None):
                               f"прабелы)")
             continue
         body_par += 1
+        if block[0].lstrip().startswith(">"):
+            for j, l in enumerate(block):
+                ln = start + j
+                if not l.startswith("> "):
+                    errors.append(f"радок {ln}: радок цытаты без маркера «> »")
+                elif "  " in l[2:]:
+                    errors.append(f"радок {ln}: цытата расцягнута (двайныя "
+                                  f"прабелы)")
+            continue
         for j, l in enumerate(block):
             ln = start + j
             last = j == len(block) - 1
