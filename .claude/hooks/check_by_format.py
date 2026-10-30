@@ -6,10 +6,13 @@ Two modes, selected by the hook event in the stdin JSON:
 - PostToolUse (matcher: Write|Edit): if tool_input.file_path is a *_BY.md
   file in the repository root, checks that one file. Catches direct
   Write/Edit of a final file.
-- Stop: checks ALL *_BY.md files in the repository root — the canonical
-  path, because the final file is normally produced by `justify.py -o ...`
-  through Bash, which PostToolUse(Write|Edit) never sees. Guarded by
-  stop_hook_active to avoid an infinite stop loop.
+- Stop: checks the *_BY.md files in the repository root that were CHANGED
+  in this session (modified or untracked per `git status`), because the
+  final file is normally produced by `justify.py -o ...` through Bash,
+  which PostToolUse(Write|Edit) never sees. Committed files from other
+  sessions (e.g. a finished Fable file during an Opus run) are left alone.
+  If git is unavailable, falls back to checking every root *_BY.md.
+  Guarded by stop_hook_active to avoid an infinite stop loop.
 
 On violations exits with code 2 and prints the errors to stderr
 (blocking feedback for the agent).
@@ -53,8 +56,22 @@ def main():
     if event == "Stop":
         if data.get("stop_hook_active"):
             sys.exit(0)  # already continuing after this hook — don't loop
+        targets = sorted(glob.glob(os.path.join(root, "*_BY.md")))
+        try:
+            st = subprocess.run(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                capture_output=True, text=True, cwd=root, check=True)
+            changed = set()
+            for line in st.stdout.splitlines():
+                p = line[3:].strip().strip('"')
+                if " -> " in p:
+                    p = p.split(" -> ", 1)[1].strip('"')
+                changed.add(os.path.abspath(os.path.join(root, p)))
+            targets = [p for p in targets if os.path.abspath(p) in changed]
+        except Exception:
+            pass  # no git — check every root *_BY.md
         errors = ""
-        for path in sorted(glob.glob(os.path.join(root, "*_BY.md"))):
+        for path in targets:
             errors += check_one(root, path)
         if errors:
             sys.stderr.write(errors)

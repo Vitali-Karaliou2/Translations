@@ -33,6 +33,20 @@ def norm_space(s: str) -> str:
     return s.strip()
 
 
+# italics markers used inside ParaParser buffers (converted to *...*)
+IT_OPEN, IT_CLOSE = "\x01", "\x02"
+
+
+def render_italics(s: str) -> str:
+    """Turn \\x01...\\x02 markers into Markdown *...*, keeping the stars
+    tight against the emphasized text (whitespace is moved outside)."""
+    s = re.sub(r"\x01\s+", " \x01", s)
+    s = re.sub(r"\s+\x02", "\x02 ", s)
+    s = s.replace(IT_OPEN + IT_CLOSE, "")          # empty emphasis
+    s = s.replace(IT_OPEN, "*").replace(IT_CLOSE, "*")
+    return re.sub(r"\s+", " ", s).strip()
+
+
 # ---------------------------------------------------------------- epub (EN/RU)
 
 class ParaParser(HTMLParser):
@@ -53,16 +67,19 @@ class ParaParser(HTMLParser):
             return
         if tag in ("p", "h1", "h2", "h3", "h4"):
             self._stack.append([tag, cls, []])
-        elif tag == "div" and self._stack:
-            pass
+        elif tag in ("i", "em") and self._stack and not self._skip_depth:
+            self._stack[-1][2].append(IT_OPEN)
 
     def handle_endtag(self, tag):
         if tag == "a" and self._skip_depth:
             self._skip_depth -= 1
             return
+        if tag in ("i", "em") and self._stack and not self._skip_depth:
+            self._stack[-1][2].append(IT_CLOSE)
+            return
         if self._stack and tag == self._stack[-1][0]:
             t, cls, buf = self._stack.pop()
-            text = norm_space("".join(buf))
+            text = render_italics("".join(buf))
             if text:
                 self.items.append((t, cls, text))
 
