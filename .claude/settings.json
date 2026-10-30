@@ -8,6 +8,8 @@
       "Edit",
       "WebSearch",
       "Bash(python3 .claude/*)",
+      "Bash(python3 .claude/skills/md-justify/scripts/:*)",
+      "Bash(python3 .claude/hooks/:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
