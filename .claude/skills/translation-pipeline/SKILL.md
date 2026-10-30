@@ -80,7 +80,10 @@ segments.md, глоссарий, A/B/C и пишет `draft_D.md`. Переда�
    python3 .claude/skills/md-justify/scripts/justify.py <clean> -o The_Road_to_Unfreedom_by_Timothy_Snyder_<Model>_<N>_BY.md
    python3 .claude/skills/md-justify/scripts/check_format.py The_Road_to_Unfreedom_by_Timothy_Snyder_<Model>_<N>_BY.md --part <N>
    ```
-3. Hook проверит файл автоматически при записи; добейся нулевых ошибок.
+3. Запуск check_format.py в п. 2 ОБЯЗАТЕЛЕН — justify.py пишет файл через
+   Bash, и PostToolUse-hook этого не видит. Страховка: Stop-hook проверяет
+   все `*_BY.md` в корне при каждой остановке сессии и заблокирует
+   завершение, пока ошибки не исправлены.
 
 ## Шаг 6. Коммит
 
