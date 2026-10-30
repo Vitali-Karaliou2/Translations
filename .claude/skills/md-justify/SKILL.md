@@ -28,10 +28,14 @@ python3 .claude/skills/md-justify/scripts/split_align.py --part prologue --model
 ```
 
 Извлекает часть из sources/*.md, выравнивает EN↔UK↔RU (DP по длинам,
-Gale–Church), пишет `work/<part>/<model>/segments.md` (таблица
-`ID | EN | UK | RU`, ID = P001…, опора — абзацы EN) и `align_report.md` +
-stdout: попарные расхождения EN/UK, EN/RU, UK/RU с точным указанием
-абзацев, где они начинаются.
+Gale–Church), пишет в `work/<part>/<model>/`:
+- `segments.md` — таблица `ID | EN | UK | RU` (ID = P001…, опора — абзацы
+  EN) — только для synthesizer;
+- `segments_EN.md`, `segments_UK.md`, `segments_RU.md` — те же абзацы по
+  одному языку (`## P###` + текст) — для одноязычных агентов, чтобы
+  изоляция языков была механической;
+- `align_report.md` + stdout: попарные расхождения EN/UK, EN/RU, UK/RU с
+  точным указанием абзацев, где они начинаются.
 
 ## justify.py
 

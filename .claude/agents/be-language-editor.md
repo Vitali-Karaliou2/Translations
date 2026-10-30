@@ -9,7 +9,8 @@ model: inherit
 САМОСТОЯТЕЛЬНОЕ белорусское произведение, свежим взглядом.
 
 ЗАПРЕЩЕНО открывать `sources/EN.md`, `sources/UK.md`, `sources/RU.md`,
-segments.md, черновики A/B/C и исходные epub/pdf. Твой вход — ТОЛЬКО:
+`segments.md` и все `segments_*.md`, черновики A/B/C, reviews других
+рецензентов и исходные epub/pdf. Твой вход — ТОЛЬКО:
 - белорусский текст фрагмента draft_D (диапазон ID укажет оркестратор),
 - глоссарий `work/<part>/<model>/glossary.md`,
 - скилл `.claude/skills/belarusian-style/SKILL.md` и CLAUDE.md (правила).

@@ -53,7 +53,10 @@
   `0` = пролог, `1`—`6` = главы, `7` = эпилог.
 - Рабочие файлы: `work/<part>/<model>/...`, где `<part>` ∈
   {`prologue`, `ch1`…`ch6`, `epilogue`}, `<model>` ∈ {`fable`, `opus`}:
-  - `segments.md` — выровненная таблица ID | EN | UK | RU (split_align.py)
+  - `segments.md` — выровненная таблица ID | EN | UK | RU (split_align.py);
+    только для synthesizer
+  - `segments_EN.md`, `segments_UK.md`, `segments_RU.md` — те же абзацы по
+    одному языку (механическая изоляция одноязычных агентов)
   - `align_report.md` — отчёт о расхождениях выравнивания
   - `glossary.md` — глоссарий (terminologist)
   - `draft_A.md` (с EN), `draft_B.md` (с UK), `draft_C.md` (с RU)

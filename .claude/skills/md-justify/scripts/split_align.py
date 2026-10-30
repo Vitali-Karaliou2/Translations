@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Extract one part of the book from sources/{EN,UK,RU}.md and align it.
 
-Writes work/<part>/<model>/segments.md — a table `ID | EN | UK | RU`
-(EN paragraphs are the pivot; merged paragraphs are joined with " ¶ ").
+Writes into work/<part>/<model>/:
+  - segments.md — a table `ID | EN | UK | RU` (EN paragraphs are the pivot;
+    merged paragraphs are joined with " ¶ ") — for the synthesizer;
+  - segments_EN.md, segments_UK.md, segments_RU.md — one language each
+    (## P### + paragraph), so single-source translators can be given a file
+    that mechanically CANNOT leak the other languages into their context.
 Reports pairwise paragraph-count divergences (EN/UK, EN/RU, UK/RU) and
 where each divergence starts, both to stdout and to
 work/<part>/<model>/align_report.md.
@@ -166,6 +170,23 @@ def main():
         f.write(f"- RU: {t_ru} — {len(ru)} абз.\n\n")
         f.write("| ID | EN | UK | RU |\n|----|----|----|----|\n")
         f.write("\n".join(rows) + "\n")
+
+    # per-language files: mechanical isolation for single-source translators
+    def write_lang(lang, title, cells):
+        p = os.path.join(outdir, f"segments_{lang}.md")
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(f"# Сегменты {lang} — {part}: {title}\n")
+            for i, cell in enumerate(cells):
+                f.write(f"\n## P{i + 1:03d}\n{cell}\n")
+        return p
+
+    write_lang("EN", t_en, en)
+    write_lang("UK", t_uk,
+               [" ¶ ".join(uk[k] for k in m_uk.get(i, []))
+                for i in range(len(en))])
+    write_lang("RU", t_ru,
+               [" ¶ ".join(ru[k] for k in m_ru.get(i, []))
+                for i in range(len(en))])
 
     # ------- divergence report --------------------------------------------
     rep = [f"# Справаздача выраўноўвання — {part}",
