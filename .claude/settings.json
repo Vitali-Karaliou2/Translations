@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Write",
+      "Edit",
+      "WebSearch",
+      "Bash(python3 .claude/*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)"
+    ],
+    "deny": [
+      "Edit(*.epub)",
+      "Write(*.epub)",
+      "Edit(*.pdf)",
+      "Write(*.pdf)",
+      "Edit(The Road to Unfreedom by Timothy Snyder_EN.epub)",
+      "Edit(The Road to Unfreedom by Timothy Snyder_UA.pdf)",
+      "Edit(The Road to Unfreedom by Timothy Snyder_RU.epub)",
+      "Edit(sources/**)",
+      "Write(sources/**)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/check_by_format.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
